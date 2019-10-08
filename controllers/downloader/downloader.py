@@ -85,7 +85,7 @@ class YoutubeDLController(_Controller):
                          .format(dl_dir=config.downloads_dir,
                                  sid=session.get("sid")))
         if default_options:
-            dl_format = ("bestvideo[height>={video_height}]"
+            dl_format = ("bestvideo[height<={video_height}]"
                          "+bestaudio".format(video_height=video_height))
             ydl_opts = {"format": dl_format, "outtmpl": download_path,
                         "max_filesize": config.max_filesize}

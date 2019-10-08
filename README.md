@@ -10,3 +10,5 @@ JYDL - Jquery Youtube Downloader application
 1. Using application virtualenv open a terminal in project root folder and run a celery worker `celery -A proj worker --loglevel=info --concurrency=50 -Q io_bound --pool=eventlet -n io_bound_worker@%h --logfile=proj/logs/celery.log`.
 1. Using application virtualenv, run `python runserver.py` in a separate terminal.
 1. Go to `localhost:5888` in your browser to use the application.
+
+Coming up next: React JS/React Native frontends.

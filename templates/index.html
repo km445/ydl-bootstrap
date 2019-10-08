@@ -1,45 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Index page{% endblock %}
 {% block content %}
-<form method="POST" class="was-validated">
-  <div class="form-row">
-    <div class="form-group col-md-12">
-      <label for="url">URL:</label>
-      <input type="text" class="form-control" id="url" name="url" placeholder="Paste your youtube link here, e.g. https://www.youtube.com/watch?v=dP15zlyra3c" required>
-    </div>
+<form method="POST" class="was-validated form-inline mt-2 mb-2">
+  <label for="url" class="mb-2 col-md-2">URL:</label>
+  <input type="text" class="form-control mb-2 col-md-8" id="url" name="url" placeholder="Paste your youtube link here, e.g. https://www.youtube.com/watch?v=dP15zlyra3c" required>
+  <button type="submit" class="btn btn-primary mb-2 col-md-2">Submit</button>
+  <label for="format" class="col-md-2">Format:</label>
+  <div class="col-md-2">
+    <select name="format" class="form-control" id="format" required="true">
+    {% for format_type, format_values in formats.items() %}
+      <optgroup label="{{ format_type }}">
+        {% for format_val in format_values %}
+        <option value="{{ format_val }}" {% if format_val == default_audio_format %}selected{% endif %}>{{ format_val }}</option>
+        {% endfor %}
+      </optgroup>
+    {% endfor %}
+    </select>
   </div>
-  <div class="form-row">
-    <div class="form-group col-md-3">
-      <label for="format">Format:</label>
-      <select name="format" class="form-control" id="format" required="true">
-      {% for format_type, format_values in formats.items() %}
-        <optgroup label="{{ format_type }}">
-          {% for format_val in format_values %}
-          <option value="{{ format_val }}" {% if format_val == default_audio_format %}selected{% endif %}>{{ format_val }}</option>
-          {% endfor %}
-        </optgroup>
+
+  <div class="col-md-2 form-group" id="video_height_container">
+    <select name="video_height" class="form-control" id="video_height">
+      {% for height in video_allowed_height.values() %}
+      <option value="{{ height }}" {% if height == default_video_height %}selected{% endif %}>{{ height + 'p'}}</option>
       {% endfor %}
-      </select>
-    </div>
-    <div class="form-group col-md-3" id="video_height_container">
-      <label for="video_height">Video height:</label>
-      <select name="video_height" class="form-control" id="video_height">
-        {% for height in video_allowed_height.values() %}
-        <option value="{{ height }}" {% if height == default_video_height %}selected{% endif %}>{{ height + 'p'}}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="form-group col-md-3" id="audio_bitrate_container">
-      <label for="audio_bitrate">Audio bitrate:</label>
-      <select name="audio_bitrate" class="form-control" id="audio_bitrate">
-        {% for bitrate in audio_allowed_bitrate.values() %}
-        <option value="{{ bitrate }}" {% if bitrate == default_audio_bitrate %}selected{% endif %}>{{ bitrate }}</option>
-        {% endfor %}
-      </select>
-    </div>
+    </select>
+  </div>
+  <div class="col-md-2 form-group" id="audio_bitrate_container">
+    <select name="audio_bitrate" class="form-control" id="audio_bitrate">
+      {% for bitrate in audio_allowed_bitrate.values() %}
+      <option value="{{ bitrate }}" {% if bitrate == default_audio_bitrate %}selected{% endif %}>{{ bitrate + 'KBit/s' }}</option>
+      {% endfor %}
+    </select>
   </div>
   <input type="hidden" name="format_type" value="audio">
-  <input type="submit" class="btn btn-primary" value="Submit">
 </form>
 <div class="row" id="feedback"></div>
 <div class="row" id="stats"></div>
@@ -107,18 +100,18 @@
         $("#stats").append('<div class="col-md-4 text-center">Download size: ' + data.extra.dl_size + '</div>');
       };
       if (data.status == "COMPLETED"){
-        $("input[type=submit]").attr("disabled", false);
+        $("button[type=submit]").attr("disabled", false);
         $("#feedback").empty().append('<div class="col-md-12 text-center">Please confirm the download if applicable and check your browser downloads.</div>');
         window.location = "/results/" + data.task_id;
       };
       if (data.status == "ERROR"){
-        $("input[type=submit]").attr("disabled", false);
-        $("#feedback").empty().append('<div class="col-md-12">Something went wrong, please try again.</div>');
+        $("button[type=submit]").attr("disabled", false);
+        $("#feedback").empty().append('<div class="col-md-12 text-center">' + data.error + '</div>');
       };
     });
 
-    $("input[type=submit]").click(function(e){
-      $("input[type=submit]").attr("disabled", true);
+    $("button[type=submit]").click(function(e){
+      $("button[type=submit]").attr("disabled", true);
 
       $.ajax({type: "POST",
               url: "/",
@@ -129,7 +122,7 @@
               },
               error: function(data){
                 var task_id = data.task_id;
-                $("input[type=submit]").attr("disabled", false);
+                $("button[type=submit]").attr("disabled", false);
               },
       });
       e.preventDefault();
