@@ -72,6 +72,14 @@ def get_result(ydl_opts, url, task_id, room):
                      {"task_id": task_id, "status": TaskStatuses.Processing,
                       "extra": {"title": info_dict.get("title"),
                                 "thumbnail": info_dict.get("thumbnail")}})
+        filesize = info_dict.get("filesize")
+        if filesize and filesize > config.max_filesize:
+            send_message(socketio, SocketEvents.TaskUpdate, room,
+                         {"task_id": task_id, "status": TaskStatuses.Error,
+                          "error":
+                          "Maximum download size exceeded, \
+                          please try a smaller download."})
+            return {}
         ydl.extract_info(url, download=True)
         fn = get_fn_match(filename, room)
         if fn is None:
